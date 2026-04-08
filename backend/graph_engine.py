@@ -202,8 +202,8 @@ _ensure_all_edges_have_status()
 
 def natural_language_to_topology_json(prompt: str) -> dict[str, Any]:
     """
-    Mock Antigravity engine: natural language → {nodes, links, remove_nodes?}.
-    Matches the schema in antigravity_system_prompt.txt (plus optional remove_nodes).
+    Mock Maptive engine: natural language → {nodes, links, remove_nodes?}.
+    Matches the schema in maptive_system_prompt.txt (plus optional remove_nodes).
     """
     low = prompt.strip().lower()
     nodes: list[dict[str, Any]] = []
@@ -396,7 +396,7 @@ def natural_language_to_topology_json(prompt: str) -> dict[str, Any]:
 
 
 def apply_topology_spec(spec: dict[str, Any]) -> list[str]:
-    """Merge Antigravity JSON into the live graph."""
+    """Merge Maptive JSON into the live graph."""
     errors: list[str] = []
     if not isinstance(spec, dict):
         return ["Spec must be a JSON object"]
@@ -787,7 +787,7 @@ async def analyze_logs(logs: List[Dict]):
 @app.get("/")
 async def root():
     """Root endpoint"""
-    return {"message": "Antigravity Pro Network Management API", "version": "1.0.0"}
+    return {"message": "Maptive Pro Network Management API", "version": "1.0.0"}
 
 
 if __name__ == "__main__":
