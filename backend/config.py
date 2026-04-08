@@ -3,7 +3,8 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Maptive - Network Digital Twin"
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/maptive")
+    # Default to SQLite for local development; switch to PostgreSQL for production
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./maptive.db")
     UPLOAD_DIR: str = "uploads"
     FIREBASE_SERVICE_ACCOUNT: str = os.getenv("FIREBASE_SERVICE_ACCOUNT", "firebase-sdk.json")
     

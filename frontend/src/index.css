@@ -11,22 +11,26 @@
   }
 
   body {
-    @apply bg-[#f0f9ff] font-sans antialiased text-slate-800;
-    background-image:
-      radial-gradient(circle at top, rgba(56, 189, 248, 0.2), transparent 34%),
-      radial-gradient(circle at right, rgba(167, 243, 208, 0.2), transparent 28%),
-      linear-gradient(180deg, #f0f9ff, #eaf6ff 55%, #f0f9ff);
+    @apply bg-[#f5f7fa] font-sans antialiased text-slate-800 selection:bg-indigo-100;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background-attachment: fixed;
   }
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(40px) scale(0.95);
+@layer components {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-glass rounded-[24px];
   }
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
+  
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-slate-600 hover:bg-white/50 hover:text-indigo-600 font-medium;
+  }
+  
+  .sidebar-item-active {
+    @apply bg-indigo-600 text-white shadow-lg shadow-indigo-200/50 hover:bg-indigo-700 hover:text-white;
   }
 }
 
+.shadow-glass {
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}

@@ -6,7 +6,7 @@ import { useAuthContext } from '@/context/AuthContext';
 import { firebaseReady } from '@/lib/firebase';
 import { cn } from '@/lib/utils';
 
-const COLLEGE_DOMAIN = '@college.edu';
+const ALLOWED_DOMAINS_MSG = '@college.edu or @maptive.com';
 
 export default function Login() {
   const { user, signInWithGoogle, signInWithEmail, loginMock, loading } = useAuthContext();
@@ -44,16 +44,16 @@ export default function Login() {
       <GlassCard className="w-full max-w-md border-white/20 p-8">
         <div className="text-center">
           <p className="text-[11px] uppercase tracking-[0.32em] text-sky-500">Maptive Light</p>
-          <h1 className="mt-2 text-2xl font-semibold text-slate-800">College Network Intelligence</h1>
-          <p className="mt-2 text-sm text-slate-600">Only verified <span className="text-slate-800">{COLLEGE_DOMAIN}</span> accounts can enter.</p>
+          <h1 className="mt-2 text-2xl font-semibold text-slate-800">Maptive Enterprise Intelligence</h1>
+          <p className="mt-2 text-sm text-slate-600">Only {ALLOWED_DOMAINS_MSG} accounts can enter.</p>
         </div>
 
         <div className="mt-6 rounded-2xl border border-white/30 bg-white/55 p-4">
           <div className="flex items-center gap-2 text-sm text-emerald-600">
             <ShieldCheck className="h-4 w-4" />
-            College-domain access control enabled
+            Infrastructure access control active
           </div>
-          <p className="mt-2 text-xs text-slate-500">Google and email/password login both reject non-college accounts.</p>
+          <p className="mt-2 text-xs text-slate-500">Only maptive.com and authorized domains are allowed.</p>
         </div>
 
         {firebaseReady ? (
@@ -79,11 +79,11 @@ export default function Login() {
             </div>
 
             <form onSubmit={onEmail} className="flex flex-col gap-3">
-              <input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder={`you${COLLEGE_DOMAIN}`} className="rounded-2xl border border-white/30 bg-white/60 px-3 py-2.5 text-sm text-slate-800 outline-none ring-sky-500/0 focus:ring-2 focus:ring-sky-300/60" />
+              <input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" className="rounded-2xl border border-white/30 bg-white/60 px-3 py-2.5 text-sm text-slate-800 outline-none ring-sky-500/0 focus:ring-2 focus:ring-sky-300/60" />
               <input type="password" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="rounded-2xl border border-white/30 bg-white/60 px-3 py-2.5 text-sm text-slate-800 outline-none ring-sky-500/0 focus:ring-2 focus:ring-sky-300/60" />
               <button type="submit" disabled={loading} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-sky-500 py-2.5 text-sm font-semibold text-white hover:bg-sky-400 disabled:opacity-50">
                 <KeyRound className="h-4 w-4" />
-                {mode === 'signin' ? 'Sign in with email' : 'Create college account'}
+                {mode === 'signin' ? 'Sign in with email' : 'Create authorized account'}
               </button>
             </form>
           </>
@@ -98,8 +98,8 @@ export default function Login() {
         </div>
 
         <div className="flex flex-col gap-2">
-          <button type="button" onClick={() => void loginMock('student@college.edu')} className="rounded-2xl border border-white/30 bg-white/55 py-2 text-xs text-slate-700 hover:bg-white/70">Quick: Student demo</button>
-          <button type="button" onClick={() => void loginMock('it.admin@college.edu')} className="rounded-2xl border border-white/30 bg-white/55 py-2 text-xs text-slate-700 hover:bg-white/70">Quick: IT admin demo</button>
+          <button type="button" onClick={() => void loginMock('admin@maptive.com')} className="rounded-2xl border border-white/30 bg-white/55 py-2 text-xs text-slate-700 hover:bg-white/70">Quick: IT admin demo</button>
+          <button type="button" onClick={() => void loginMock('user@college.edu')} className="rounded-2xl border border-white/30 bg-white/55 py-2 text-xs text-slate-700 hover:bg-white/70">Quick: Staff demo</button>
         </div>
 
         {error ? <p className="mt-4 text-center text-xs text-red-500">{error}</p> : null}

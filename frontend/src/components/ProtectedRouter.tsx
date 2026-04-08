@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/context/AuthContext';
 import { firebaseReady } from '@/lib/firebase';
@@ -10,7 +10,7 @@ export function ProtectedRouter({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-industrial-bg text-slate-300">
-        Loading Antigravity...
+        Loading Maptive...
       </div>
     );
   }

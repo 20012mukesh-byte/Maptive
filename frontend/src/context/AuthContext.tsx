@@ -2,9 +2,11 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
+  browserLocalPersistence,
   type User,
 } from 'firebase/auth';
 import {
@@ -20,7 +22,7 @@ import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firest
 import { auth, db, firebaseReady } from '@/lib/firebase';
 import { registerOrLoginMockUser } from '@/lib/mockUserDb';
 
-const COLLEGE_DOMAIN = 'college.edu';
+const ALLOWED_DOMAINS = ['college.edu', 'maptive.com'];
 
 export type AppUser = {
   uid: string;
@@ -49,8 +51,10 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function isCollegeEmail(email: string | null | undefined) {
-  return Boolean(email && email.toLowerCase().endsWith(`@${COLLEGE_DOMAIN}`));
+function isAllowedEmail(email: string | null | undefined) {
+  if (!email) return false;
+  const lower = email.toLowerCase();
+  return ALLOWED_DOMAINS.some(domain => lower.endsWith(`@${domain}`));
 }
 
 function roleFromEmail(email: string | null): 'admin' | 'staff' | 'student' {
@@ -68,8 +72,8 @@ function roleFromEmail(email: string | null): 'admin' | 'staff' | 'student' {
     return 'student';
   }
   
-  // All other college.edu accounts are staff
-  if (lower.endsWith('college.edu')) {
+  // All other allowed accounts are staff
+  if (ALLOWED_DOMAINS.some(domain => lower.endsWith(domain))) {
     return 'staff';
   }
   
@@ -86,10 +90,10 @@ function mapFirebaseUser(user: User): AppUser {
   };
 }
 
-async function enforceCollegeDomain(user: User) {
-  if (isCollegeEmail(user.email)) return;
-  await signOut(auth!);
-  throw new Error(`Only @${COLLEGE_DOMAIN} accounts can access Maptive.`);
+async function enforceAllowedDomain(user: User) {
+  if (isAllowedEmail(user.email)) return;
+  if (auth) await signOut(auth);
+  throw new Error(`Only authorized accounts can access Maptive.`);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -99,30 +103,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    if (!firebaseReady || !auth) {
-      const raw = localStorage.getItem('mock_user');
-      if (raw) {
-        try {
-          const mock = JSON.parse(raw) as { email?: string; uid?: string; role?: string };
-          setUser({
-            uid: mock.uid || 'mock',
-            email: mock.email || null,
-            displayName: null,
-            role: mock.role === 'admin' ? 'admin' : 'staff',
-            isMock: true,
-          });
-          setUserProfile({ isFirstLogin: false, source: 'mock' });
-        } catch {
-          localStorage.removeItem('mock_user');
-        }
+    // 1. Initial restoration from localStorage (Fall-through for both mock and refresh)
+    const rawMock = localStorage.getItem('mock_user');
+    if (rawMock) {
+      try {
+        const mock = JSON.parse(rawMock) as { email?: string; uid?: string; role?: string };
+        setUser({
+          uid: mock.uid || 'mock',
+          email: mock.email || null,
+          displayName: null,
+          role: mock.role === 'admin' ? 'admin' : 'staff',
+          isMock: true,
+        });
+        setUserProfile({ isFirstLogin: false, source: 'mock' });
+      } catch {
+        localStorage.removeItem('mock_user');
       }
+    }
+
+    if (!firebaseReady || !auth) {
       setLoading(false);
       return;
     }
 
+    // Set persistence once
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser && !isCollegeEmail(firebaseUser.email)) {
-        await signOut(auth);
+      // If we are currently using a mock session, don't let a null Firebase state wipe it out
+      if (!firebaseUser) {
+        // Only clear if the current user was a REAL firebase user
+        setUser((current) => {
+          if (current?.isMock) return current;
+          setUserProfile(null);
+          setProfileLoading(false);
+          return null;
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (!isAllowedEmail(firebaseUser.email)) {
+        if (auth) await signOut(auth);
         setUser(null);
         setUserProfile(null);
         setProfileLoading(false);
@@ -130,11 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setUser(firebaseUser ? mapFirebaseUser(firebaseUser) : null);
-      if (!firebaseUser) {
-        setUserProfile(null);
-        setProfileLoading(false);
-      }
+      setUser(mapFirebaseUser(firebaseUser));
       setLoading(false);
     });
 
@@ -193,9 +211,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Firebase is not configured. Use demo login or set VITE_FIREBASE_* env vars.');
     }
     const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ hd: COLLEGE_DOMAIN, prompt: 'select_account' });
+    provider.setCustomParameters({ prompt: 'select_account' });
     const result = await signInWithPopup(auth, provider);
-    await enforceCollegeDomain(result.user);
+    await enforceAllowedDomain(result.user);
   }, []);
 
   const signInWithEmail = useCallback(
@@ -203,23 +221,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!firebaseReady || !auth) {
         throw new Error('Firebase is not configured.');
       }
-      if (!isCollegeEmail(email)) {
-        throw new Error(`Use your @${COLLEGE_DOMAIN} email address.`);
+      if (!isAllowedEmail(email)) {
+        throw new Error(`Use an authorized email address.`);
       }
       if (mode === 'signup') {
         const result = await createUserWithEmailAndPassword(auth, email, password);
-        await enforceCollegeDomain(result.user);
+        await enforceAllowedDomain(result.user);
         return;
       }
       const result = await signInWithEmailAndPassword(auth, email, password);
-      await enforceCollegeDomain(result.user);
+      await enforceAllowedDomain(result.user);
     },
     []
   );
 
   const loginMock = useCallback(async (email: string) => {
-    if (!isCollegeEmail(email)) {
-      throw new Error(`Demo access also requires @${COLLEGE_DOMAIN} emails.`);
+    if (!isAllowedEmail(email)) {
+      throw new Error(`Demo access also requires an authorized email.`);
     }
     const { isFirstLogin } = registerOrLoginMockUser(email);
     const role = roleFromEmail(email);

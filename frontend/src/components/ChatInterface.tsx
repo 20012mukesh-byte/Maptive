@@ -1,10 +1,11 @@
-﻿import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import confetti from 'canvas-confetti';
 import { Gauge, Loader2, Send, Sparkles, Wrench } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { generateTopology, hasGrokApiKey, predictBottlenecks, suggestHealthFixes } from '@/lib/grok';
 import { cn } from '@/lib/utils';
 import type { NetworkMonitorState, TopologyPayload } from '@/types/topology';
+import { PdfUploadInline } from '@/components/PdfUploadInline';
 
 type Message = { role: 'user' | 'ai'; text: string };
 
@@ -22,6 +23,7 @@ export function ChatInterface({
   monitorState,
   onFixSuggestions,
   onSavePrompt,
+  onPdfProcessed,
 }: {
   disabled?: boolean;
   applyTopology: (payload: TopologyPayload) => void;
@@ -31,6 +33,7 @@ export function ChatInterface({
   monitorState?: NetworkMonitorState | null;
   onFixSuggestions?: (suggestions: string[]) => void;
   onSavePrompt?: (prompt: string) => Promise<void>;
+  onPdfProcessed?: (file: File, content: string, payload: TopologyPayload) => void;
 }) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([
@@ -53,18 +56,13 @@ export function ChatInterface({
     const prompt = input.trim();
     if (!prompt || disabled || busy) return;
 
-    console.log('🎯 onSubmit called with prompt:', prompt);
     setInput('');
     setMessages((current) => [...current, { role: 'user', text: prompt }]);
     setBusy(true);
 
     try {
-      console.log('⏳ Calling generateTopology...');
       const payload = await generateTopology(prompt);
-      console.log('✅ generateTopology returned payload:', payload);
-      console.log('📊 Payload has', payload.nodes.length, 'nodes and', payload.edges.length, 'edges');
       
-      // Save the prompt if onSavePrompt is provided
       if (onSavePrompt) {
         try {
           await onSavePrompt(prompt);
@@ -77,7 +75,6 @@ export function ChatInterface({
       celebrateComplex(payload.nodes.length);
       pushAi(`Topology deployed. ${payload.nodes.length} nodes now grouped by VLAN halo and floated into place.`);
     } catch (error) {
-      console.error('❌ onSubmit error:', error);
       pushAi(error instanceof Error ? error.message : String(error));
     } finally {
       setBusy(false);
@@ -165,12 +162,25 @@ export function ChatInterface({
             ) : null}
           </div>
         </div>
+        
         <form onSubmit={onSubmit} className="flex gap-2">
           <input value={input} onChange={(event) => setInput(event.target.value)} disabled={disabled || busy} placeholder={disabled ? 'Admin only' : 'Create a university lab network for 20 workstations'} className="min-w-0 flex-1 rounded-2xl border border-white/30 bg-white/50 px-4 py-3 text-sm text-slate-800 outline-none ring-sky-500/0 transition focus:ring-2 focus:ring-sky-300/60 disabled:opacity-50" />
           <button type="submit" disabled={disabled || busy} className="inline-flex items-center justify-center rounded-2xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-400 disabled:opacity-40">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </button>
         </form>
+
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <p className="mb-2 text-[10px] uppercase tracking-[0.24em] text-slate-500">PDF Document Source</p>
+          <PdfUploadInline 
+            onPdfProcessed={(file, content, payload) => {
+              pushAi(`📄 Processing PDF: ${file.name}...`);
+              onPdfProcessed?.(file, content, payload);
+              pushAi(`✅ Network generated from PDF! ${payload.nodes.length} nodes added.`);
+            }}
+            className="border-white/10 bg-white/10"
+          />
+        </div>
       </div>
     </GlassCard>
   );
