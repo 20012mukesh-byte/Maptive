@@ -1,0 +1,31 @@
+# Maptive — Project Update Log (NEWCHANGES)
+Date: April 8-9, 2026
+
+## 1. UI/UX Refactor — "Executive Glass" Dashboard
+- **Layout Evolution**: Eliminated all absolute/overlapping elements. The dashboard now follows a strict Flexbox grid system.
+- **Dedicated Toolbar**: Created a centralized action center for 'New Design', 'Auto-Arrange', 'Config Export', and 'PDF Export'.
+- **Independent Sidebar**: Integrated the Grok Analyst and AI Architect into a non-intrusive right-aligned panel.
+- **Enhanced Aesthetics**: Implemented a pure white/light-blue "SaaS-Elite" theme with rounded large-radius containers and high-contrast typography.
+
+## 2. AI Network Architect — Advanced PDF Pipeline
+- **Image-to-Network (OCR)**: Integrated `pytesseract` and `pdf2image` fallback. Scanned network blueprints or physical diagrams can now be converted to digital twins.
+- **Dynamic Reasoning**: Switched to LLaMA 3.1 70B for backend processing. 
+- **Variation Logic**: Implemented `temperature: 0.7` and randomized architectural bias (Mesh, Star-Bus, Spine-Leaf) to ensure unique topologies for every input.
+- **Precise Extraction**: AI now identifies specific departments, floor zones, and VLAN requirements directly from the PDF text.
+
+## 3. Real-Time Incident Infrastructure
+- **Incident Manager Hook**: Created `useIncidentManager` to synchronize Firestore telemetry with the UI.
+- **Toast Notifications**: Implemented `IncidentToastStack.tsx`—a Framer-Motion powered alert system for immediate failure detection.
+- **Visual Failure Mapping**: When a link fails in the real world (Firestore update), the corresponding edge in Maptive snaps to "Broken Red" instantly.
+
+## 4. Stability & Security
+- **Session Persistence**: Fixed the automatic logout bug by enforcing `browserLocalPersistence`. User sessions are now maintained across browser restarts.
+- **TypeScript Hardening**: Resolved 100% of TypeScript errors and lints in the core `NetworkCreator` and `Grok` modules.
+- **Local Mocks**: Added `mockDb.ts` to ensure the platform remains functional during dev/demo runs without cloud credentials.
+
+## 5. Development environment
+- **Optimized .gitignore**: Excluded binary data files and local DBs (`*.db`, `*.sqlite`) to prevent repo bloating.
+- **Backend Services**: Refactored `pdf_parser.py` and `grok.ts` (Frontend) for unified prompt engineering and response handling.
+
+---
+**Status**: Enterprise-Grade Operational. Shipped to Repository.
