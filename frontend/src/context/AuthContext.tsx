@@ -1,4 +1,4 @@
-﻿import {
+import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -89,7 +89,7 @@ function mapFirebaseUser(user: User): AppUser {
 async function enforceCollegeDomain(user: User) {
   if (isCollegeEmail(user.email)) return;
   await signOut(auth!);
-  throw new Error(`Only @${COLLEGE_DOMAIN} accounts can access Antigravity.`);
+  throw new Error(`Only @${COLLEGE_DOMAIN} accounts can access Maptive.`);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

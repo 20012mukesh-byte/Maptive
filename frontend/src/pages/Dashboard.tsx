@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Activity, ArrowRight, Gauge, ShieldCheck, Sparkles } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { useAuthContext } from '@/context/AuthContext';
@@ -18,7 +18,7 @@ export default function Dashboard() {
           <GlassCard className="overflow-hidden border-sky-500/20 p-6 shadow-glass backdrop-blur-xl">
             <div className="relative">
               <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.14),transparent_38%)]" />
-              <p className="text-[11px] uppercase tracking-[0.28em] text-sky-400">Antigravity</p>
+              <p className="text-[11px] uppercase tracking-[0.28em] text-sky-400">Maptive</p>
               <h2 className="mt-2 text-3xl font-semibold text-slate-50">AI-powered network simulation cockpit</h2>
               <p className="mt-3 max-w-2xl text-sm text-slate-300">
                 Protected access, live Firestore telemetry, and Grok-generated topologies flowing straight into the React Flow canvas.
@@ -90,7 +90,7 @@ export default function Dashboard() {
             <ul className="mt-4 space-y-3 text-sm text-slate-400">
               <li>Glassmorphism HUD panels with deep blur and layered gradients.</li>
               <li>Live packet animation on active links and dashed blue self-heal redundancy lines.</li>
-              <li>Dagre-powered Antigravity layouts as soon as Grok returns JSON.</li>
+              <li>Dagre-powered Maptive layouts as soon as Grok returns JSON.</li>
               <li>Realtime Firestore node state driving pulsing red failure visuals.</li>
             </ul>
           </GlassCard>

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe, KeyRound, ShieldCheck } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -43,7 +43,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] px-4 py-10">
       <GlassCard className="w-full max-w-md border-white/20 p-8">
         <div className="text-center">
-          <p className="text-[11px] uppercase tracking-[0.32em] text-sky-500">Antigravity Light</p>
+          <p className="text-[11px] uppercase tracking-[0.32em] text-sky-500">Maptive Light</p>
           <h1 className="mt-2 text-2xl font-semibold text-slate-800">College Network Intelligence</h1>
           <p className="mt-2 text-sm text-slate-600">Only verified <span className="text-slate-800">{COLLEGE_DOMAIN}</span> accounts can enter.</p>
         </div>
